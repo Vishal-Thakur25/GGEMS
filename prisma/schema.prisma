@@ -1,0 +1,719 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  CONTENT_MANAGER
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+  ARCHIVED
+}
+
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  ARCHIVED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model AdminUser {
+  id           String         @id @default(cuid())
+  email        String         @unique @db.VarChar(191)
+  passwordHash String         @db.VarChar(255)
+  name         String         @db.VarChar(120)
+  role         AdminRole      @default(ADMIN)
+  isActive     Boolean        @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  sessions     AdminSession[]
+  auditLogs    AuditLog[]
+
+  @@index([role])
+  @@index([isActive])
+}
+
+model AdminSession {
+  id        String    @id @default(cuid())
+  token     String    @unique @db.VarChar(255)
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  userAgent String?   @db.VarChar(500)
+  ipAddress String?   @db.VarChar(45)
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id        String     @id @default(cuid())
+  userId    String?
+  user      AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userEmail String     @db.VarChar(191)
+  action    String     @db.VarChar(60) // LOGIN, LOGOUT, CREATE, UPDATE, DELETE, PUBLISH, etc.
+  entity    String     @db.VarChar(60) // Program, TeamMember, Center, Settings, etc.
+  entityId  String?    @db.VarChar(191)
+  details   String?    @db.Text
+  ipAddress String?    @db.VarChar(45)
+  userAgent String?    @db.VarChar(500)
+  status    String     @default("SUCCESS") @db.VarChar(20)
+  createdAt DateTime   @default(now())
+
+  @@index([action])
+  @@index([entity])
+  @@index([createdAt])
+  @@index([userId])
+}
+
+model SiteSettings {
+  id                     Int      @id @default(1)
+  siteName               String   @default("GGems Squash Academy") @db.VarChar(120)
+  siteTagline            String   @default("Unleash Your Inner Champion") @db.VarChar(255)
+  siteDescription        String   @db.Text
+  phone                  String   @default("8826433044") @db.VarChar(40)
+  secondaryPhone         String?  @db.VarChar(40)
+  email                  String   @default("contact@ggemssquash.com") @db.VarChar(120)
+  address                String   @db.VarChar(255)
+  city                   String   @default("Noida") @db.VarChar(60)
+  state                  String   @default("Delhi NCR") @db.VarChar(60)
+  pincode                String   @default("201304") @db.VarChar(20)
+  associationText        String   @default("In Association with Dhairya Bharat Foundation, India") @db.VarChar(255)
+  logoUrl                String?  @db.VarChar(500)
+  faviconUrl             String?  @db.VarChar(500)
+  instagramUrl           String   @default("https://instagram.com/ggemssquash") @db.VarChar(255)
+  instagramAltUrl        String?  @default("https://instagram.com/ggemssirifort") @db.VarChar(255)
+  youtubeUrl             String?  @db.VarChar(255)
+  facebookUrl            String?  @db.VarChar(255)
+  linkedinUrl            String?  @db.VarChar(255)
+  officeLocationDetails  String   @db.VarChar(255)
+  copyrightText          String   @default("© 2026 GGems Squash Academy. All Rights Reserved.") @db.VarChar(255)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model ThemeSettings {
+  id              Int      @id @default(1)
+  primaryColor    String   @default("#050505") @db.VarChar(20)
+  secondaryColor  String   @default("#0B0B0B") @db.VarChar(20)
+  accentColor     String   @default("#FFE000") @db.VarChar(20)
+  backgroundColor String   @default("#050505") @db.VarChar(20)
+  surfaceColor    String   @default("#121212") @db.VarChar(20)
+  textColor       String   @default("#FFFFFF") @db.VarChar(20)
+  textMutedColor  String   @default("#888888") @db.VarChar(20)
+  borderColor     String   @default("#1F1F1F") @db.VarChar(20)
+  headingFont     String   @default("Inter") @db.VarChar(60)
+  bodyFont        String   @default("Inter") @db.VarChar(60)
+  borderRadius    String   @default("rounded-xl") @db.VarChar(30)
+  buttonStyle     String   @default("pill") @db.VarChar(30)
+  containerWidth  String   @default("max-w-7xl") @db.VarChar(30)
+  updatedAt       DateTime @updatedAt
+}
+
+model SeoSettings {
+  id                   Int      @id @default(1)
+  metaTitle            String   @default("GGems Squash Academy | Delhi NCR High Performance Squash Coaching") @db.VarChar(255)
+  metaDescription      String   @db.Text
+  metaKeywords         String   @db.VarChar(500)
+  ogImageUrl           String?  @db.VarChar(500)
+  canonicalBaseUrl     String   @default("https://ggemssquash.com") @db.VarChar(255)
+  googleVerificationId String?  @db.VarChar(120)
+  robotsTxt            String?  @db.Text
+  updatedAt            DateTime @updatedAt
+}
+
+model Navigation {
+  id        String           @id @default(cuid())
+  name      String           @unique @db.VarChar(60) // "HEADER_MAIN", "FOOTER_NAV", etc.
+  location  String           @db.VarChar(40)
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  items     NavigationItem[]
+
+  @@index([location])
+}
+
+model NavigationItem {
+  id           String           @id @default(cuid())
+  navigationId String
+  navigation   Navigation       @relation(fields: [navigationId], references: [id], onDelete: Cascade)
+  parentId     String?
+  parent       NavigationItem?  @relation("NavHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children     NavigationItem[] @relation("NavHierarchy")
+  label        String           @db.VarChar(100)
+  url          String           @db.VarChar(255)
+  isExternal   Boolean          @default(false)
+  openInNewTab Boolean          @default(false)
+  isMegaMenu   Boolean          @default(false)
+  displayOrder Int              @default(0)
+  isVisible    Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([navigationId, displayOrder])
+  @@index([parentId])
+}
+
+model Page {
+  id             String        @id @default(cuid())
+  slug           String        @unique @db.VarChar(120)
+  title          String        @db.VarChar(200)
+  subtitle       String?       @db.VarChar(255)
+  seoTitle       String?       @db.VarChar(255)
+  seoDescription String?       @db.Text
+  ogImageUrl     String?       @db.VarChar(500)
+  status         ContentStatus @default(PUBLISHED)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  sections       PageSection[]
+
+  @@index([slug, status])
+}
+
+model PageSection {
+  id               String   @id @default(cuid())
+  pageSlug         String   @db.VarChar(120)
+  page             Page     @relation(fields: [pageSlug], references: [slug], onDelete: Cascade)
+  sectionType      String   @db.VarChar(60) // HERO, INTRO, IMPACT, PATHWAY, PROGRAMS, WHY_GGEMS, PHILOSOPHY, TEAM, CENTERS, PARTNERSHIP, TESTIMONIALS, CTA, CONTACT
+  title            String   @db.VarChar(255)
+  subtitle         String?  @db.VarChar(255)
+  content          String?  @db.Text
+  ctaLabel         String?  @db.VarChar(80)
+  ctaUrl           String?  @db.VarChar(255)
+  secondaryCtaLabel String? @db.VarChar(80)
+  secondaryCtaUrl   String? @db.VarChar(255)
+  imageUrl         String?  @db.VarChar(500)
+  videoUrl         String?  @db.VarChar(500)
+  styleConfig      String?  @db.Text // JSON configuration for styling/animation toggle
+  displayOrder     Int      @default(0)
+  isVisible        Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([pageSlug, displayOrder])
+  @@index([isVisible])
+}
+
+model HeroSection {
+  id                    Int       @id @default(1)
+  badgeText             String    @default("DELHI NCR • HIGH PERFORMANCE SQUASH") @db.VarChar(120)
+  headline              String    @default("GGEMS SQUASH ACADEMY") @db.VarChar(255)
+  subHeadline           String    @default("TRAIN. COMPETE. EXCEL.") @db.VarChar(255)
+  description           String    @db.Text
+  primaryCtaText        String    @default("START YOUR JOURNEY") @db.VarChar(80)
+  primaryCtaUrl         String    @default("/contact") @db.VarChar(255)
+  secondaryCtaText      String    @default("PARTNER WITH US") @db.VarChar(80)
+  secondaryCtaUrl       String    @default("/school-partnership") @db.VarChar(255)
+  callNowPhone          String    @default("8826433044") @db.VarChar(40)
+  mediaType             MediaType @default(IMAGE)
+  imageUrl              String?   @db.VarChar(500)
+  videoUrl              String?   @db.VarChar(500)
+  backgroundOverlayOpacity Int   @default(70)
+  alignment             String    @default("left") @db.VarChar(20)
+  isActive              Boolean   @default(true)
+  updatedAt             DateTime  @updatedAt
+}
+
+model Program {
+  id               String           @id @default(cuid())
+  title            String           @db.VarChar(150)
+  slug             String           @unique @db.VarChar(150)
+  ageGroup         String           @db.VarChar(100)
+  skillLevel       String           @db.VarChar(100)
+  duration         String           @db.VarChar(100)
+  shortDescription String           @db.VarChar(500)
+  fullDescription  String           @db.Text
+  featuredImage    String?          @db.VarChar(500)
+  trainingFocus    String           @db.VarChar(255)
+  scheduleInfo     String?          @db.VarChar(255)
+  status           ContentStatus    @default(PUBLISHED)
+  displayOrder     Int              @default(0)
+  isFeatured       Boolean          @default(false)
+  seoTitle         String?          @db.VarChar(255)
+  seoDescription   String?          @db.Text
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  features         ProgramFeature[]
+
+  // Extended Detail Page CMS Fields
+  category                    String?   @default("Racket Sports") @db.VarChar(100)
+  heroEyebrow                 String?   @default("OUR PROGRAMME") @db.VarChar(100)
+  heroTitle                   String?   @db.VarChar(200)
+  heroSubtitle                String?   @db.VarChar(255)
+  heroDescription             String?   @db.Text
+  heroImage                   String?   @db.VarChar(500)
+  heroVideo                   String?   @db.VarChar(500)
+  primaryCtaText              String?   @default("Enquire Now") @db.VarChar(80)
+  primaryCtaLink              String?   @default("/contact") @db.VarChar(255)
+  secondaryCtaText            String?   @default("Watch Video") @db.VarChar(80)
+  secondaryCtaLink            String?   @db.VarChar(255)
+  heroBadgesData              String?   @db.Text // JSON: array of { icon, title, subtitle }
+
+  highlightsTitle             String?   @default("PROGRAMME HIGHLIGHTS") @db.VarChar(150)
+  highlightsData              String?   @db.Text // JSON: array of { id, title, description, icon, displayOrder, published }
+
+  overviewLabel               String?   @default("PROGRAMME OVERVIEW") @db.VarChar(100)
+  overviewTitle               String?   @db.VarChar(255)
+  overviewDescription         String?   @db.Text
+  overviewSecondaryDescription String?  @db.Text
+  overviewImage               String?   @db.VarChar(500)
+  overviewVideo               String?   @db.VarChar(500)
+  overviewCtaText             String?   @default("Join the Programme") @db.VarChar(80)
+  overviewCtaLink             String?   @default("/contact") @db.VarChar(255)
+
+  whoCanJoinTitle             String?   @default("WHO CAN JOIN?") @db.VarChar(100)
+  audienceData                String?   @db.Text // JSON: array of { id, title, description, icon, displayOrder, published }
+
+  trainingStructureEyebrow    String?   @default("TRAINING STRUCTURE") @db.VarChar(100)
+  trainingStructureTitle      String?   @default("A Step-by-Step Approach") @db.VarChar(255)
+  trainingStructureDescription String?  @db.Text
+  stagesData                  String?   @db.Text // JSON: array of { id, stepNumber, title, description, icon, displayOrder, published }
+
+  facilitiesEyebrow           String?   @default("OUR FACILITIES") @db.VarChar(100)
+  facilitiesTitle             String?   @default("World-Class Training Environment") @db.VarChar(255)
+  facilitiesDescription       String?   @db.Text
+  facilitiesData              String?   @db.Text // JSON: array of { id, title, description, image, displayOrder, published }
+
+  testimonialEyebrow          String?   @default("WHAT OUR PLAYERS SAY") @db.VarChar(100)
+  testimonialTitle            String?   @default("Student Success Stories") @db.VarChar(255)
+  testimonialsData            String?   @db.Text // JSON: array of { id, name, designation, organization, profileImage, quote, rating, displayOrder, published }
+
+  faqEyebrow                  String?   @default("FREQUENTLY ASKED QUESTIONS") @db.VarChar(100)
+  faqTitle                    String?   @default("Quick Answers") @db.VarChar(255)
+  faqDescription              String?   @db.Text
+  faqsData                    String?   @db.Text // JSON: array of { id, question, answer, displayOrder, published }
+
+  ctaLabel                    String?   @default("READY TO START?") @db.VarChar(100)
+  ctaTitle                    String?   @default("Take Your Game to the Next Level") @db.VarChar(255)
+  ctaDescription              String?   @db.Text
+  ctaBackgroundImage          String?   @db.VarChar(500)
+  ctaPrimaryText              String?   @default("Enquire Now") @db.VarChar(80)
+  ctaPrimaryLink              String?   @default("/contact") @db.VarChar(255)
+  ctaSecondaryText            String?   @default("Call Now") @db.VarChar(80)
+  ctaSecondaryLink            String?   @default("tel:8826433044") @db.VarChar(255)
+  ctaAudienceLinks            String?   @db.Text // JSON: array of { label, link, icon }
+
+  metaTitle                   String?   @db.VarChar(255)
+  metaDescription             String?   @db.Text
+  ogImage                     String?   @db.VarChar(500)
+
+  @@index([slug, status])
+  @@index([displayOrder])
+  @@index([status])
+}
+
+model ProgramFeature {
+  id           String   @id @default(cuid())
+  programId    String
+  program      Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  title        String   @db.VarChar(200)
+  description  String?  @db.VarChar(500)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([programId, displayOrder])
+}
+
+model TeamMember {
+  id              String                  @id @default(cuid())
+  name            String                  @db.VarChar(120)
+  slug            String                  @unique @db.VarChar(120)
+  role            String                  @db.VarChar(150)
+  experienceYears Int                     @default(10)
+  qualifications  String                  @db.VarChar(255)
+  specialization  String                  @db.VarChar(255)
+  shortBio        String                  @db.VarChar(500)
+  fullBio         String                  @db.Text
+  profileImage    String?                 @db.VarChar(500)
+  status          ContentStatus           @default(PUBLISHED)
+  displayOrder    Int                     @default(0)
+  isFeatured      Boolean                 @default(false)
+  email           String?                 @db.VarChar(120)
+  instagramUrl    String?                 @db.VarChar(255)
+  linkedinUrl     String?                 @db.VarChar(255)
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  achievements    TeamMemberAchievement[]
+
+  @@index([slug, status])
+  @@index([displayOrder])
+  @@index([status])
+}
+
+model TeamMemberAchievement {
+  id           String     @id @default(cuid())
+  teamMemberId String
+  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  title        String     @db.VarChar(255)
+  year         String?    @db.VarChar(20)
+  displayOrder Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([teamMemberId, displayOrder])
+}
+
+model Center {
+  id            String        @id @default(cuid())
+  name          String        @db.VarChar(200)
+  slug          String        @unique @db.VarChar(200)
+  city          String        @default("Delhi NCR") @db.VarChar(80)
+  state         String        @default("Delhi") @db.VarChar(80)
+  address       String        @db.VarChar(255)
+  phone         String        @default("8826433044") @db.VarChar(40)
+  email         String?       @db.VarChar(120)
+  googleMapsUrl String?       @db.Text
+  facilities    String        @db.Text // JSON or comma separated facilities: e.g. "Glass Back Courts, Fitness Area, Locker Rooms"
+  image         String?       @db.VarChar(500)
+  displayOrder  Int           @default(0)
+  isFeatured    Boolean       @default(false)
+  status        ContentStatus @default(PUBLISHED)
+
+  // Partner Detail Page CMS Fields
+  category            String?       @default("SCHOOL PARTNER") @db.VarChar(100)
+  location            String?       @db.VarChar(255)
+  shortDescription    String?       @db.Text
+  heroImage           String?       @db.VarChar(500)
+  brochureUrl         String?       @db.VarChar(500)
+  websiteUrl          String?       @db.VarChar(500)
+  aboutLabel          String?       @default("ABOUT THE SCHOOL") @db.VarChar(100)
+  aboutHeading        String?       @default("Excellence in Education & Sports") @db.VarChar(255)
+  aboutDescription    String?       @db.Text
+  aboutImage          String?       @db.VarChar(500)
+  videoUrl            String?       @db.VarChar(500)
+  partnershipType     String?       @default("Sports Training Programme") @db.VarChar(200)
+  sportsOffered       String?       @default("Squash, Badminton & Other Sports") @db.VarChar(200)
+  studentEngagement   String?       @default("Regular Training & Competitions") @db.VarChar(200)
+  programmesData      String?       @db.Text
+  testimonialQuote    String?       @db.Text
+  testimonialAuthor   String?       @db.VarChar(150)
+  testimonialRole     String?       @db.VarChar(200)
+  testimonialImage    String?       @db.VarChar(500)
+  testimonialsData    String?       @db.Text
+  ctaLabel            String?       @default("PARTNER WITH US") @db.VarChar(100)
+  ctaHeading          String?       @default("Let's Build Brighter Futures") @db.VarChar(255)
+  ctaDescription      String?       @db.Text
+  ctaBackgroundImage  String?       @db.VarChar(500)
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  images        CenterImage[]
+
+  @@index([slug, status])
+  @@index([displayOrder])
+  @@index([status])
+}
+
+model CenterImage {
+  id           String   @id @default(cuid())
+  centerId     String
+  center       Center   @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  imageUrl     String   @db.VarChar(500)
+  caption      String?  @db.VarChar(200)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([centerId, displayOrder])
+}
+
+model Achievement {
+  id           String        @id @default(cuid())
+  athleteName  String        @db.VarChar(120)
+  category     String        @db.VarChar(100) // "Men's Category", "Under-19", "Master Over 40"
+  rank         String        @db.VarChar(60)  // "India Rank - 08", "India Rank 10"
+  title        String        @db.VarChar(255)
+  competition  String?       @db.VarChar(255)
+  year         String?       @db.VarChar(20)
+  athleteImage String?       @db.VarChar(500)
+  medal        String?       @db.VarChar(60) // "Gold", "Silver", "Bronze", "National Finalist"
+  displayOrder Int           @default(0)
+  isFeatured   Boolean       @default(true)
+  status       ContentStatus @default(PUBLISHED)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([displayOrder])
+  @@index([status])
+}
+
+model Statistic {
+  id           String   @id @default(cuid())
+  key          String   @unique @db.VarChar(80)
+  label        String   @db.VarChar(150)
+  numericValue Int      @default(0)
+  prefix       String?  @db.VarChar(10)
+  suffix       String?  @db.VarChar(20)
+  description  String?  @db.VarChar(255)
+  displayOrder Int      @default(0)
+  isVisible    Boolean  @default(true)
+  updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder])
+}
+
+model SchoolPartner {
+  id              String   @id @default(cuid())
+  schoolName      String   @db.VarChar(200)
+  location        String   @db.VarChar(150)
+  logoUrl         String?  @db.VarChar(500)
+  partnershipType String   @default("Academy Center & Sports Development") @db.VarChar(150)
+  description     String?  @db.VarChar(500)
+  displayOrder    Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([displayOrder])
+  @@index([isActive])
+}
+
+model SchoolPartnership {
+  id             Int      @id @default(1)
+  headline       String   @default("BUILD A WORLD-CLASS SQUASH PROGRAM AT YOUR SCHOOL") @db.VarChar(255)
+  subheadline    String   @default("Partner with GGems Sports Academy for structured coaching, elite tournament exposure, and holistic athlete development.") @db.VarChar(500)
+  description    String   @db.Text
+  benefitsList   String   @db.Text // JSON string of bullet points
+  contactPhone   String   @default("8826433044") @db.VarChar(40)
+  contactEmail   String   @default("partnerships@ggemssquash.com") @db.VarChar(120)
+  proposalPdfUrl String?  @db.VarChar(500)
+  updatedAt      DateTime @updatedAt
+}
+
+model Testimonial {
+  id           String        @id @default(cuid())
+  authorName   String        @db.VarChar(120)
+  authorRole   String        @db.VarChar(100) // "Parent of Junior National Player", "State Champion"
+  athleteName  String?       @db.VarChar(120)
+  quote        String        @db.Text
+  rating       Int           @default(5)
+  avatarUrl    String?       @db.VarChar(500)
+  displayOrder Int           @default(0)
+  status       ContentStatus @default(PUBLISHED)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([displayOrder])
+  @@index([status])
+}
+
+model GalleryAlbum {
+  id           String         @id @default(cuid())
+  name         String         @db.VarChar(150)
+  slug         String         @unique @db.VarChar(150)
+  description  String?        @db.VarChar(500)
+  coverImage   String?        @db.VarChar(500)
+  displayOrder Int            @default(0)
+  isVisible    Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  images       GalleryImage[]
+
+  @@index([slug])
+  @@index([displayOrder])
+}
+
+model GalleryImage {
+  id           String        @id @default(cuid())
+  albumId      String?
+  album        GalleryAlbum? @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  title        String        @db.VarChar(150)
+  imageUrl     String        @db.VarChar(500)
+  category     String        @default("ACADEMY") @db.VarChar(60) // ACADEMY, SQUASH, TRAINING, TOURNAMENTS, CENTERS, ATHLETES, EVENTS
+  altText      String?       @db.VarChar(200)
+  displayOrder Int           @default(0)
+  isFeatured   Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+
+  @@index([albumId])
+  @@index([category])
+  @@index([displayOrder])
+}
+
+model NewsCategory {
+  id        String        @id @default(cuid())
+  name      String        @unique @db.VarChar(80)
+  slug      String        @unique @db.VarChar(80)
+  createdAt DateTime      @default(now())
+  articles  NewsArticle[]
+
+  @@index([slug])
+}
+
+model NewsArticle {
+  id            String        @id @default(cuid())
+  title         String        @db.VarChar(255)
+  slug          String        @unique @db.VarChar(255)
+  excerpt       String        @db.VarChar(500)
+  content       String        @db.Text
+  featuredImage String?       @db.VarChar(500)
+  authorName    String        @default("GGems Editorial") @db.VarChar(120)
+  categoryId    String?
+  category      NewsCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  status        ContentStatus @default(PUBLISHED)
+  publishedAt   DateTime      @default(now())
+  seoTitle      String?       @db.VarChar(255)
+  seoDescription String?      @db.Text
+  displayOrder  Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([slug, status])
+  @@index([publishedAt])
+  @@index([categoryId])
+}
+
+model ContactEnquiry {
+  id                String        @id @default(cuid())
+  name              String        @db.VarChar(120)
+  phone             String        @db.VarChar(30)
+  email             String        @db.VarChar(120)
+  userType          String        @default("STUDENT") @db.VarChar(50) // STUDENT, PARENT, SCHOOL_REP, COACH, OTHER
+  ageOrClass        String?       @db.VarChar(50)
+  preferredLocation String?       @db.VarChar(150)
+  message           String        @db.Text
+  status            EnquiryStatus @default(NEW)
+  ipAddress         String?       @db.VarChar(45)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique @db.VarChar(120)
+  isActive  Boolean  @default(true)
+  ipAddress String?  @db.VarChar(45)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model MediaAsset {
+  id           String   @id @default(cuid())
+  filename     String   @db.VarChar(255)
+  originalName String   @db.VarChar(255)
+  mimeType     String   @db.VarChar(100)
+  extension    String   @db.VarChar(20)
+  sizeBytes    Int
+  url          String   @db.VarChar(500)
+  altText      String?  @db.VarChar(255)
+  title        String?  @db.VarChar(255)
+  caption      String?  @db.VarChar(500)
+  folder       String   @default("general") @db.VarChar(80)
+  createdAt    DateTime @default(now())
+
+  @@index([extension])
+  @@index([folder])
+  @@index([createdAt])
+}
+
+model Faq {
+  id           String   @id @default(cuid())
+  question     String   @db.VarChar(300)
+  answer       String   @db.Text
+  category     String   @default("GENERAL") @db.VarChar(60)
+  displayOrder Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder])
+  @@index([isPublished])
+}
+
+model GgemsVertical {
+  id           String   @id @default(cuid())
+  title        String   @db.VarChar(150)
+  slug         String   @unique @db.VarChar(150)
+  subtitle     String   @db.VarChar(255)
+  description  String?  @db.Text
+  image        String   @db.VarChar(500)
+  mobileImage  String?  @db.VarChar(500)
+  icon         String?  @db.VarChar(100)
+  accentText   String?  @db.VarChar(100)
+  link         String?  @db.VarChar(255)
+  ctaText      String?  @db.VarChar(100)
+  displayOrder Int      @default(0)
+  published    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder])
+  @@index([published])
+}
+
+model ContactPhone {
+  id           String   @id @default(cuid())
+  phoneNumber  String   @db.VarChar(50)
+  role         String   @db.VarChar(120)
+  description  String?  @db.VarChar(255)
+  displayOrder Int      @default(0)
+  isPrimary    Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder])
+  @@index([isActive])
+  @@index([isPrimary])
+}
+
+model ContactEmail {
+  id           String   @id @default(cuid())
+  email        String   @db.VarChar(191)
+  role         String   @db.VarChar(120)
+  description  String?  @db.VarChar(255)
+  displayOrder Int      @default(0)
+  isPrimary    Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder])
+  @@index([isActive])
+  @@index([isPrimary])
+}
+
+model ContactAddress {
+  id            String   @id @default(cuid())
+  label         String   @db.VarChar(120)
+  addressLine1  String   @db.VarChar(255)
+  addressLine2  String?  @db.VarChar(255)
+  city          String   @db.VarChar(100)
+  state         String   @db.VarChar(100)
+  pincode       String?  @db.VarChar(20)
+  country       String   @default("India") @db.VarChar(100)
+  mapUrl        String?  @db.Text
+  directionsUrl String?  @db.Text
+  isPrimary     Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([displayOrder])
+  @@index([isActive])
+  @@index([isPrimary])
+}
+
