@@ -10,8 +10,12 @@ interface NewsPageProps {
 }
 
 export async function generateStaticParams() {
-  const { articles } = await getNewsArticles(100, 1);
-  return articles.map((a) => ({ slug: a.slug }));
+  try {
+    const { articles } = await getNewsArticles(100, 1);
+    return articles.map((a) => ({ slug: a.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({

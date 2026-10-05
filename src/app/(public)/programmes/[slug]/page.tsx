@@ -17,8 +17,12 @@ interface ProgrammePageProps {
 export const revalidate = 60; // Incremental Static Regeneration
 
 export async function generateStaticParams() {
-  const programs = await getPrograms(true);
-  return programs.map((p) => ({ slug: p.slug }));
+  try {
+    const programs = await getPrograms(true);
+    return programs.map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({

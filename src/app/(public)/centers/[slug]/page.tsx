@@ -15,8 +15,12 @@ interface CenterPageProps {
 }
 
 export async function generateStaticParams() {
-  const centers = await getCenters(true);
-  return centers.map((c) => ({ slug: c.slug }));
+  try {
+    const centers = await getCenters(true);
+    return centers.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({
