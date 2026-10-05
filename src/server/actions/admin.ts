@@ -2075,7 +2075,7 @@ export async function updateBrandLogosAction(input: {
   footerLogo?: string | null;
 }) {
   try {
-    const admin = await requireAdmin('MANAGE_SETTINGS');
+    const admin = await requireAdmin();
 
     let logoValue: string | null = null;
     const trimmedHeader = input.headerLogo?.trim() || null;

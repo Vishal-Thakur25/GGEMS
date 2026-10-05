@@ -43,6 +43,8 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     'MANAGE_NAVIGATION',
     'MANAGE_THEME',
     'MANAGE_SEO',
+    'MANAGE_USERS',
+    'MANAGE_SETTINGS',
     'VIEW_ENQUIRIES',
     'DELETE_CONTENT',
     'VIEW_AUDIT_LOGS',

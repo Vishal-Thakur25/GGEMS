@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentAdmin } from '@/lib/auth/session';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile, mkdir, chmod } from 'fs/promises';
 import path from 'path';
 
 export const dynamic = 'force-dynamic';
@@ -78,9 +78,21 @@ export async function POST(req: NextRequest) {
 
     const uploadDir = path.join(process.cwd(), 'public', 'images', folder);
     await mkdir(uploadDir, { recursive: true });
+    try { await chmod(uploadDir, 0o755); } catch {}
 
     const filePath = path.join(uploadDir, uniqueName);
     await writeFile(filePath, buffer);
+    try { await chmod(filePath, 0o644); } catch {}
+
+    // If on Linux and /var/www/GGEMS exists, also ensure it is in /var/www/GGEMS
+    const prodDir = path.join('/var/www/GGEMS/public/images', folder);
+    if (uploadDir !== prodDir) {
+      try {
+        await mkdir(prodDir, { recursive: true });
+        await writeFile(path.join(prodDir, uniqueName), buffer);
+        await chmod(path.join(prodDir, uniqueName), 0o644);
+      } catch {}
+    }
 
     const publicUrl = `/images/${folder}/${uniqueName}`;
 

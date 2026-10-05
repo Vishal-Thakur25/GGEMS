@@ -64,10 +64,15 @@ export async function createAdminSession(user: {
     .setExpirationTime('7d')
     .sign(JWT_SECRET);
 
+  const isHttps =
+    headersList.get('x-forwarded-proto') === 'https' ||
+    headersList.get('x-forwarded-ssl') === 'on' ||
+    Boolean(headersList.get('referer')?.startsWith('https://'));
+
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, jwt, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isHttps,
     sameSite: 'lax',
     path: '/',
     expires: expiresAt,
