@@ -21,6 +21,7 @@ import {
   MessageSquareQuote,
   Boxes,
   PhoneCall,
+  Sparkles,
 } from 'lucide-react';
 import { logoutAdminAction } from '@/server/actions/admin';
 import { useRouter } from 'next/navigation';
@@ -46,6 +47,7 @@ const navItems = [
   { label: 'Testimonials CMS', href: '/admin/testimonials', icon: MessageSquareQuote },
   { label: 'Contact Settings', href: '/admin/contact', icon: PhoneCall },
   { label: 'Contact Enquiries', href: '/admin/enquiries', icon: Inbox },
+  { label: 'Brand & Logos', href: '/admin/branding', icon: Sparkles },
   { label: 'Theme Tokens', href: '/admin/theme', icon: Palette },
   { label: 'Navigation Menus', href: '/admin/navigation', icon: Compass },
   { label: 'Audit Logs', href: '/admin/audit-logs', icon: History },

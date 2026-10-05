@@ -1,6 +1,7 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { getSiteSettings, getNavigation } from '@/server/queries';
+import { parseSiteLogos } from '@/lib/logo';
 
 export default async function PublicLayout({
   children,
@@ -27,11 +28,14 @@ export default async function PublicLayout({
     state: 'Delhi NCR',
     pincode: '201304',
     associationText: 'In Association with Dhairya Bharat Foundation, India',
+    logoUrl: null,
     instagramUrl: 'https://instagram.com/ggemssquash',
     instagramAltUrl: 'https://instagram.com/ggemssirifort',
     youtubeUrl: 'https://youtube.com/@ggemssquash',
     copyrightText: '© 2026 GGems Squash Academy. All Rights Reserved.',
   };
+
+  const { headerLogo, footerLogo } = parseSiteLogos(safeSiteSettings.logoUrl);
 
   const navItems =
     headerNav?.items && headerNav.items.length > 0
@@ -61,9 +65,20 @@ export default async function PublicLayout({
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar items={navItems} siteName={safeSiteSettings.siteName} phone={safeSiteSettings.phone} />
+      <Navbar
+        items={navItems}
+        siteName={safeSiteSettings.siteName}
+        phone={safeSiteSettings.phone}
+        logoUrl={headerLogo}
+      />
       <main className="flex-1">{children}</main>
-      <Footer siteSettings={safeSiteSettings} quickLinks={quickLinks} />
+      <Footer
+        siteSettings={{
+          ...safeSiteSettings,
+          footerLogoUrl: footerLogo,
+        }}
+        quickLinks={quickLinks}
+      />
     </div>
   );
 }

@@ -37,7 +37,7 @@ export default function CenterDetailHero({ center }: CenterDetailHeroProps) {
     center.heroImage || center.image || '/images/centers/center-jaypee.jpg';
 
   return (
-    <section className="w-full bg-white pt-6 pb-12 sm:pb-16 lg:pb-20 relative overflow-hidden">
+    <section className="w-full bg-white pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* 01. Breadcrumb */}

@@ -11,7 +11,7 @@ interface ProgrammeBreadcrumbProps {
 
 export default function ProgrammeBreadcrumb({ title }: ProgrammeBreadcrumbProps) {
   return (
-    <div className="w-full bg-white pt-6 pb-2 sm:pt-8 sm:pb-3 border-b border-zinc-100/60">
+    <div className="w-full bg-white pt-24 sm:pt-28 pb-3 border-b border-zinc-100/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.nav
           initial={{ opacity: 0, y: -6 }}

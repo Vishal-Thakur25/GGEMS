@@ -2067,4 +2067,57 @@ export async function reorderContactAddressesAction(items: { id: string; display
   }
 }
 
+/**
+ * Update Brand Logos Action (Header & Footer)
+ */
+export async function updateBrandLogosAction(input: {
+  headerLogo?: string | null;
+  footerLogo?: string | null;
+}) {
+  try {
+    const admin = await requireAdmin('MANAGE_SETTINGS');
+
+    let logoValue: string | null = null;
+    const trimmedHeader = input.headerLogo?.trim() || null;
+    const trimmedFooter = input.footerLogo?.trim() || null;
+
+    if (trimmedHeader || trimmedFooter) {
+      logoValue = JSON.stringify({
+        header: trimmedHeader,
+        footer: trimmedFooter,
+      });
+    }
+
+    await db.siteSettings.upsert({
+      where: { id: 1 },
+      update: { logoUrl: logoValue },
+      create: {
+        id: 1,
+        siteName: 'GGEMS SQUASH ACADEMY',
+        siteTagline: 'Unleash Your Inner Champion',
+        siteDescription:
+          'With over 20 years of experience in squash coaching and sports development, GGems develops players from grassroots to national excellence across Delhi NCR.',
+        address: 'Jaypee Wish Town, Kosmos-62, Sector 134',
+        officeLocationDetails: 'Jaypee Wish Town, Kosmos-62, Sector 134, Noida',
+        logoUrl: logoValue,
+      },
+    });
+
+    await recordAuditLog({
+      action: 'UPDATE',
+      entity: 'SiteSettings',
+      entityId: '1',
+      details: `Updated brand logos: Header (${trimmedHeader ? 'custom' : 'default'}), Footer (${trimmedFooter ? 'custom' : 'default'})`,
+      admin,
+    });
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/admin/branding');
+    revalidatePath('/admin/navigation');
+    return { success: true, message: 'Brand logos updated successfully.' };
+  } catch (err: any) {
+    return { success: false, error: { code: 'ACTION_FAILED', message: err.message || 'Failed to update brand logos.' } };
+  }
+}
+
 

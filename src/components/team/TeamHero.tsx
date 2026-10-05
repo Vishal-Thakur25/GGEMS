@@ -66,7 +66,7 @@ export default function TeamHero({
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 max-w-[1680px] mx-auto w-full px-6 sm:px-10 lg:pl-12 lg:pr-8 py-12 sm:py-16 lg:py-20">
+      <div className="relative z-10 max-w-[1680px] mx-auto w-full px-6 sm:px-10 lg:pl-12 lg:pr-8 pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 items-center gap-10">
 
           {/* LEFT COLUMN: Breadcrumb, Typography, Actions */}

@@ -29,17 +29,22 @@ export async function generateMetadata({
   params,
 }: ProgrammePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const program = await getProgramBySlug(slug);
+  const rawProgram = await getProgramBySlug(slug);
 
-  if (!program) {
+  if (!rawProgram) {
     return {
       title: 'Programme Not Found | GGEMS Sports Academy',
     };
   }
 
+  const program = rawProgram as any;
+
   const metaTitle =
-    program.metaTitle || `${program.title} | GGEMS Sports Academy`;
+    program.seoTitle ||
+    program.metaTitle ||
+    `${program.title} | GGEMS Sports Academy`;
   const metaDescription =
+    program.seoDescription ||
     program.metaDescription ||
     program.heroDescription ||
     program.shortDescription ||
@@ -78,14 +83,16 @@ export default async function IndividualProgrammePage({
   params,
 }: ProgrammePageProps) {
   const { slug } = await params;
-  const [program, siteSettings] = await Promise.all([
+  const [rawProgram, siteSettings] = await Promise.all([
     getProgramBySlug(slug),
     getSiteSettings(),
   ]);
 
-  if (!program || program.status !== 'PUBLISHED') {
+  if (!rawProgram || rawProgram.status !== 'PUBLISHED') {
     notFound();
   }
+
+  const program = rawProgram as any;
 
   return (
     <div className="relative bg-white text-zinc-950 font-sans selection:bg-[#63D13F] selection:text-white">

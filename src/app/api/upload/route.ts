@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     // Determine target upload directory (team, centers, about, or general)
     const folderParam = formData.get('folder') as string | null;
     const folder =
-      folderParam && ['centers', 'team', 'about', 'general', 'ecosystem'].includes(folderParam)
+      folderParam && ['centers', 'team', 'about', 'general', 'ecosystem', 'branding'].includes(folderParam)
         ? folderParam
         : 'about';
     const uniqueName = `${folder}-${cleanName}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}${ext}`;

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowUpRight, Phone, Mail, MapPin, Instagram, Youtube, Facebook, Linkedin, Shield } from 'lucide-react';
 import GGemsLogo from './GGemsLogo';
 
@@ -21,6 +22,7 @@ interface FooterProps {
     facebookUrl?: string | null;
     linkedinUrl?: string | null;
     copyrightText: string;
+    footerLogoUrl?: string | null;
   };
   quickLinks: Array<{ id: string; label: string; url: string }>;
 }
@@ -37,7 +39,17 @@ export default function Footer({ siteSettings, quickLinks }: FooterProps) {
           {/* Col 1: Brand & Socials */}
           <div className="lg:col-span-4 flex flex-col gap-4">
             <Link href="/" className="flex items-center group">
-              <GGemsLogo variant="dark" />
+              {siteSettings.footerLogoUrl ? (
+                <Image
+                  src={siteSettings.footerLogoUrl}
+                  alt={siteSettings.siteName || 'GGems Sports Academy'}
+                  width={150}
+                  height={48}
+                  className="h-10 w-auto object-contain brightness-105"
+                />
+              ) : (
+                <GGemsLogo variant="dark" />
+              )}
             </Link>
 
             <p className="text-xs text-zinc-400 max-w-sm mt-1">

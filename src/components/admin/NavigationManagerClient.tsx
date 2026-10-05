@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { saveNavigationItemAction, deleteNavigationItemAction } from '@/server/actions/admin';
-import { Plus, Edit, Trash2, Save, X, Loader2, CheckCircle2, Compass } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Loader2, CheckCircle2, Compass, Sparkles } from 'lucide-react';
 
 interface NavItem {
   id: string;
@@ -77,26 +78,36 @@ export default function NavigationManagerClient({
 
   return (
     <div className="space-y-8">
-      {/* Tabs */}
-      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-zinc-900 border border-white/10 w-fit">
-        <button
-          type="button"
-          onClick={() => setActiveTab('HEADER')}
-          className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase transition-colors ${
-            activeTab === 'HEADER' ? 'bg-[#FFE000] text-black' : 'text-zinc-400 hover:text-white'
-          }`}
+      {/* Tabs & Brand Logo Shortcut */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-zinc-900 border border-white/10 w-fit">
+          <button
+            type="button"
+            onClick={() => setActiveTab('HEADER')}
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase transition-colors ${
+              activeTab === 'HEADER' ? 'bg-[#FFE000] text-black' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            Header Main Nav ({headerNav?.items?.length || 0})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('FOOTER')}
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase transition-colors ${
+              activeTab === 'FOOTER' ? 'bg-[#FFE000] text-black' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            Footer Links ({footerNav?.items?.length || 0})
+          </button>
+        </div>
+
+        <Link
+          href="/admin/branding"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-zinc-300 hover:text-white transition-colors w-fit"
         >
-          Header Main Nav ({headerNav?.items?.length || 0})
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('FOOTER')}
-          className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase transition-colors ${
-            activeTab === 'FOOTER' ? 'bg-[#FFE000] text-black' : 'text-zinc-400 hover:text-white'
-          }`}
-        >
-          Footer Links ({footerNav?.items?.length || 0})
-        </button>
+          <Sparkles className="w-4 h-4 text-[#6CD34A]" />
+          <span>Upload / Manage Brand Logos &rarr;</span>
+        </Link>
       </div>
 
       <div className="flex items-center justify-between">

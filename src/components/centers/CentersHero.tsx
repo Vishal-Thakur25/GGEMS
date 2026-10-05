@@ -25,7 +25,7 @@ export default function CentersHero({
       <div className="max-w-[1680px] mx-auto min-h-[520px] md:min-h-[580px] lg:min-h-[640px] grid grid-cols-1 lg:grid-cols-12 items-stretch">
 
         {/* LEFT COLUMN: Breadcrumb, Typography, Actions */}
-        <div className="lg:col-span-6 xl:col-span-6 flex flex-col justify-center px-6 sm:px-10 lg:pl-12 lg:pr-8 py-12 sm:py-16 lg:py-20 z-10">
+        <div className="lg:col-span-6 xl:col-span-6 flex flex-col justify-center px-6 sm:px-10 lg:pl-12 lg:pr-8 pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 z-10">
 
           {/* 1. Breadcrumb */}
           <motion.nav
