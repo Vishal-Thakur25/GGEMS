@@ -49,7 +49,7 @@ export default async function AboutPage() {
     getSiteSettings(),
   ]);
 
-  const founderMember = team.find((t) => t.slug === 'gyanendra-prajapati');
+  const founderMember = (team as any[])?.find((t: any) => t.slug === 'gyanendra-prajapati');
 
   return (
     <div className="relative bg-white text-zinc-950 font-sans selection:bg-[#6CD34A] selection:text-black">
@@ -254,7 +254,7 @@ export default async function AboutPage() {
                   section.content ||
                   'Our team of certified coaches and sports professionals work tirelessly to provide the best training, guidance and support to every player.'
                 }
-                members={team.map((m) => ({
+                members={team.map((m: any) => ({
                   name: m.name,
                   slug: m.slug,
                   role: m.role,
