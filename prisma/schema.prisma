@@ -90,7 +90,7 @@ model SiteSettings {
   siteDescription        String   @db.Text
   phone                  String   @default("8826433044") @db.VarChar(40)
   secondaryPhone         String?  @db.VarChar(40)
-  email                  String   @default("contact@ggemssquash.com") @db.VarChar(120)
+  email                  String   @default("contact@ggemssports.com") @db.VarChar(120)
   address                String   @db.VarChar(255)
   city                   String   @default("Noida") @db.VarChar(60)
   state                  String   @default("Delhi NCR") @db.VarChar(60)
@@ -98,7 +98,7 @@ model SiteSettings {
   associationText        String   @default("In Association with Dhairya Bharat Foundation, India") @db.VarChar(255)
   logoUrl                String?  @db.VarChar(500)
   faviconUrl             String?  @db.VarChar(500)
-  instagramUrl           String   @default("https://instagram.com/ggemssquash") @db.VarChar(255)
+  instagramUrl           String   @default("https://instagram.com/ggemssports.com") @db.VarChar(255)
   instagramAltUrl        String?  @default("https://instagram.com/ggemssirifort") @db.VarChar(255)
   youtubeUrl             String?  @db.VarChar(255)
   facebookUrl            String?  @db.VarChar(255)
@@ -129,11 +129,11 @@ model ThemeSettings {
 
 model SeoSettings {
   id                   Int      @id @default(1)
-  metaTitle            String   @default("GGems Squash Academy | Delhi NCR High Performance Squash Coaching") @db.VarChar(255)
+  metaTitle            String   @default("GGems Sports Academy | Delhi NCR High Performance Squash Coaching") @db.VarChar(255)
   metaDescription      String   @db.Text
   metaKeywords         String   @db.VarChar(500)
   ogImageUrl           String?  @db.VarChar(500)
-  canonicalBaseUrl     String   @default("https://ggemssquash.com") @db.VarChar(255)
+  canonicalBaseUrl     String   @default("https://ggemsssports.com") @db.VarChar(255)
   googleVerificationId String?  @db.VarChar(120)
   robotsTxt            String?  @db.Text
   updatedAt            DateTime @updatedAt
@@ -493,7 +493,7 @@ model SchoolPartnership {
   description    String   @db.Text
   benefitsList   String   @db.Text // JSON string of bullet points
   contactPhone   String   @default("8826433044") @db.VarChar(40)
-  contactEmail   String   @default("partnerships@ggemssquash.com") @db.VarChar(120)
+  contactEmail   String   @default("partnerships@ggemssports.com") @db.VarChar(120)
   proposalPdfUrl String?  @db.VarChar(500)
   updatedAt      DateTime @updatedAt
 }
