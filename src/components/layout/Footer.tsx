@@ -46,6 +46,7 @@ export default function Footer({ siteSettings, quickLinks }: FooterProps) {
                   width={150}
                   height={48}
                   className="h-10 w-auto object-contain brightness-105"
+                  unoptimized
                 />
               ) : (
                 <GGemsLogo variant="dark" />

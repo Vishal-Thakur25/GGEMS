@@ -44,8 +44,15 @@ export default function BrandingManagerClient({
   ) => {
     if (!file) return;
 
-    if (target === 'header') setUploadingHeader(true);
-    else setUploadingFooter(true);
+    // Instant local preview
+    const objectUrl = URL.createObjectURL(file);
+    if (target === 'header') {
+      setHeaderLogo(objectUrl);
+      setUploadingHeader(true);
+    } else {
+      setFooterLogo(objectUrl);
+      setUploadingFooter(true);
+    }
 
     setStatusMessage(null);
 
@@ -72,7 +79,7 @@ export default function BrandingManagerClient({
 
       setStatusMessage({
         type: 'success',
-        text: `${target === 'header' ? 'Header' : 'Footer'} logo uploaded! Click "Save Changes" to publish.`,
+        text: `${target === 'header' ? 'Header' : 'Footer'} logo uploaded successfully! Click "Save & Publish Logos" to save.`,
       });
     } catch (err: any) {
       setStatusMessage({
@@ -161,13 +168,14 @@ export default function BrandingManagerClient({
               </label>
               <div className="w-full h-24 rounded-xl bg-white border border-zinc-200 flex items-center justify-between px-6 shadow-inner relative overflow-hidden">
                 <div className="flex items-center">
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src={headerLogo.trim() || DEFAULT_HEADER_LOGO}
                     alt={siteName}
-                    width={150}
-                    height={48}
-                    className="h-10 sm:h-11 w-auto object-contain"
-                    unoptimized={headerLogo.startsWith('http')}
+                    className="h-10 sm:h-11 w-auto max-w-[220px] object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = DEFAULT_HEADER_LOGO;
+                    }}
                   />
                 </div>
                 <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-zinc-400">
@@ -274,13 +282,14 @@ export default function BrandingManagerClient({
               <div className="w-full h-24 rounded-xl bg-[#0A0A0A] border border-white/15 flex items-center justify-between px-6 shadow-inner relative overflow-hidden">
                 <div className="flex items-center">
                   {footerLogo.trim() ? (
-                    <Image
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
                       src={footerLogo.trim()}
                       alt={siteName}
-                      width={150}
-                      height={48}
-                      className="h-10 sm:h-11 w-auto object-contain brightness-105"
-                      unoptimized={footerLogo.startsWith('http')}
+                      className="h-10 sm:h-11 w-auto max-w-[220px] object-contain brightness-105"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   ) : (
                     <GGemsLogo variant="dark" />
